@@ -10,7 +10,7 @@ class Emacs < Formula
     url "https://github.com/emacs-mirror/emacs.git", branch: "master"
   end
 
-  option "with-json", "Build with JSON support"
+  option "with-json", "Build with fast JSON"
   option "with-native-comp", "Build with native compilation"
 
   depends_on "autoconf" => :build

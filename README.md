@@ -13,11 +13,12 @@ brew tap miles170/emacs
 brew install miles170/emacs/emacs --with-native-comp --with-json
 ```
 
-For a list of available configuration options run:
+### Options
 
-```bash
-brew info miles170/emacs/emacs
-```
+| Option               | Description                   |
+|----------------------|-------------------------------|
+| =--with-json=        | build with fast JSON          |
+| =--with-native-comp= | build with native compilation |
 
 ## Issues
 
