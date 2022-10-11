@@ -14,19 +14,26 @@ class Emacs < Formula
   option "with-native-comp", "Build with native compilation"
 
   depends_on "autoconf" => :build
-  depends_on "gcc" => :build
   depends_on "gnu-sed" => :build
   depends_on "pkg-config" => :build
   depends_on "texinfo" => :build
 
   depends_on "gnutls"
-  depends_on "jansson" if build.with? "json"
   depends_on "jansson"
   depends_on "jpeg"
-  depends_on "libgccjit" if build.with? "native-comp"
 
   uses_from_macos "libxml2"
   uses_from_macos "ncurses"
+
+  if build.with? "json"
+    depends_on "jansson"
+    depends_on "gcc" => :build
+  end
+
+  if build.with? "native-comp"
+    depends_on "libgccjit"
+    depends_on "gcc" => :build
+  end
 
   def install
     args = %W[
