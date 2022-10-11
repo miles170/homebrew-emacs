@@ -1,0 +1,12 @@
+name: New issue for Reproducible Bug
+description: "If you're sure it's reproducible and not just your machine: submit an issue so we can investigate."
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: ⚠️ **This is for bug reports with the `homebrew-emacs` tap only.**
+  - type: textarea
+    attributes:
+      label: What happened (include all command output)?
+    validations:
+      required: true

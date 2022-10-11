@@ -1,0 +1,19 @@
+name: Bump formulae on schedule or request
+
+on:
+  schedule:
+    # Every day at 5am
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: dawidd6/action-homebrew-bump-formula@v3
+        with:
+          token: ${{secrets.HOMEBREW_GITHUB_API_TOKEN}}
+          tap: miles170/homebrew-emacs
+          formula: emacs
+          livecheck: true
