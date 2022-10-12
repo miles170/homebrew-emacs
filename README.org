@@ -1,5 +1,13 @@
 * homebrew-emacs
 
+#+begin_html
+<p align="left">
+  <a href="https://github.com/miles170/homebrew-emacs/actions/workflows/tests.yml">
+    <img src="https://github.com/miles170/homebrew-emacs/actions/workflows/tests.yml/badge.svg" alt="CI Status Badge">
+  </a>
+</p>
+#+end_html
+
 This is a third party tap for [[https://brew.sh/][Homebrew]]. It provides a formula for =emacs= which includes options for enabling additional features.
 
 ** Installation and usage
