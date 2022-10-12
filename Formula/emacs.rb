@@ -14,6 +14,7 @@ class Emacs < Formula
   option "with-native-comp", "Build with native compilation"
 
   depends_on "autoconf" => :build
+  depends_on "gcc" => :build
   depends_on "gnu-sed" => :build
   depends_on "pkg-config" => :build
   depends_on "texinfo" => :build
@@ -25,17 +26,15 @@ class Emacs < Formula
   uses_from_macos "libxml2"
   uses_from_macos "ncurses"
 
-  if build.with? "json"
-    depends_on "jansson"
-    depends_on "gcc" => :build
-  end
-
-  if build.with? "native-comp"
-    depends_on "libgccjit"
-    depends_on "gcc" => :build
-  end
+  build.with?("json") && depends_on("jansson")
+  build.with?("native-comp") && depends_on("libgccjit")
 
   def install
+    # Mojave uses the Catalina SDK which causes issues like
+    # https://github.com/Homebrew/homebrew-core/issues/46393
+    # https://github.com/Homebrew/homebrew-core/pull/70421
+    ENV["ac_cv_func_aligned_alloc"] = "no" if MacOS.version == :mojave
+
     args = %W[
       --disable-silent-rules
       --enable-locallisppath=#{HOMEBREW_PREFIX}/share/emacs/site-lisp
@@ -51,27 +50,23 @@ class Emacs < Formula
       --without-selinux
     ]
 
-    if build.with?("native-comp") || build.with?("json")
-      gcc_major_ver = Formula["gcc"].any_installed_version.major
-      gcc = Formula["gcc"].opt_bin/"gcc-#{gcc_major_ver}"
-      gcc_libs = "#{HOMEBREW_PREFIX}/lib/gcc/#{gcc_major_ver}"
+    gcc_major_ver = Formula["gcc"].any_installed_version.major
+    gcc = Formula["gcc"].opt_bin/"gcc-#{gcc_major_ver}"
+    gcc_libs = "#{HOMEBREW_PREFIX}/lib/gcc/#{gcc_major_ver}"
 
-      ENV["CC"] = gcc
-      ENV.append "CFLAGS", "-I#{Formula["gcc"].include}"
-      ENV.append "LDFLAGS", "-L#{gcc_libs}"
+    ENV["CC"] = gcc
+    ENV.append "CFLAGS", "-I#{Formula["gcc"].include}"
+    ENV.append "LDFLAGS", "-L#{gcc_libs}"
 
-      if build.with? "native-comp"
-        args << "--with-native-compilation"
-        ENV.append "CFLAGS", "-I#{Formula["libgccjit"].include}"
-      end
+    args << "--with-json" if build.with? "json"
 
-      args << "--with-json" if build.with? "json"
+    if build.with? "native-comp"
+      args << "--with-native-compilation"
+      ENV.append "CFLAGS", "-I#{Formula["libgccjit"].include}"
     end
 
-    if build.head? || build.with?("native-comp") || build.with?("json")
-      ENV.prepend_path "PATH", Formula["gnu-sed"].opt_libexec/"gnubin"
-      system "./autogen.sh"
-    end
+    ENV.prepend_path "PATH", Formula["gnu-sed"].opt_libexec/"gnubin"
+    system "./autogen.sh"
 
     File.write "lisp/site-load.el", <<~EOS
       (setq exec-path (delete nil
