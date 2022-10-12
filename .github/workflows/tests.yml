@@ -4,7 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "Formula/emacs.rb"
+      - ".github/workflows/tests.yml"
   pull_request:
+    paths:
+      - "Formula/emacs.rb"
+      - ".github/workflows/tests.yml"
 
 env:
   HOMEBREW_DEVELOPER: 1
@@ -28,6 +34,7 @@ jobs:
     steps:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@master
+
       - run: brew test-bot --skip-recursive-dependents Formula/emacs.rb
 
   build:
@@ -39,7 +46,9 @@ jobs:
           - "--with-native-comp"
           - "--with-json"
     steps:
-      - uses: actions/checkout@v3
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
       - name: Build emacs ${{ matrix.build_opts }}
         run: brew install Formula/emacs.rb ${{ matrix.build_opts }}
 
