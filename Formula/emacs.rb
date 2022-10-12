@@ -52,17 +52,20 @@ class Emacs < Formula
     ]
 
     if build.with?("native-comp") || build.with?("json")
-      args << "--with-native-compilation" if build.with? "native-comp"
-      args << "--with-json" if build.with? "json"
-
       gcc_major_ver = Formula["gcc"].any_installed_version.major
       gcc = Formula["gcc"].opt_bin/"gcc-#{gcc_major_ver}"
       gcc_libs = "#{HOMEBREW_PREFIX}/lib/gcc/#{gcc_major_ver}"
 
       ENV["CC"] = gcc
       ENV.append "CFLAGS", "-I#{Formula["gcc"].include}"
-      ENV.append "CFLAGS", "-I#{Formula["libgccjit"].include}"
       ENV.append "LDFLAGS", "-L#{gcc_libs}"
+
+      if build.with? "native-comp"
+        args << "--with-native-compilation"
+        ENV.append "CFLAGS", "-I#{Formula["libgccjit"].include}"
+      end
+
+      args << "--with-json" if build.with? "json"
     end
 
     if build.head? || build.with?("native-comp") || build.with?("json")
