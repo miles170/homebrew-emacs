@@ -3,7 +3,7 @@
 #+begin_html
 <p align="left">
   <a href="https://github.com/miles170/homebrew-emacs/actions/workflows/tests.yml">
-    <img src="https://github.com/miles170/homebrew-emacs/actions/workflows/tests.yml/badge.svg" alt="CI Status Badge">
+    <img src="https://github.com/miles170/homebrew-emacs/actions/workflows/tests.yml/badge.svg" alt="CI Status Badge" />
   </a>
 </p>
 #+end_html
