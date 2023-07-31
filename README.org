@@ -18,14 +18,13 @@ Then, to run a default installation, run:
 
 #+begin_src bash
 brew tap miles170/emacs
-brew install miles170/emacs/emacs --with-native-comp --with-json
+brew install miles170/emacs/emacs --with-native-comp
 #+end_src
 
 *** Options
 
 | Option               | Description                   |
 |----------------------|-------------------------------|
-| =--with-json=        | build with fast JSON          |
 | =--with-native-comp= | build with native compilation |
 
 ** Issues
