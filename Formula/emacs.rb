@@ -1,33 +1,39 @@
 class Emacs < Formula
   desc "GNU Emacs text editor"
   homepage "https://www.gnu.org/software/emacs/"
-  url "https://ftp.gnu.org/gnu/emacs/emacs-28.2.tar.xz"
-  mirror "https://ftpmirror.gnu.org/emacs/emacs-28.2.tar.xz"
-  sha256 "ee21182233ef3232dc97b486af2d86e14042dbb65bbc535df562c3a858232488"
+  url "https://ftp.gnu.org/gnu/emacs/emacs-29.1.tar.xz"
+  mirror "https://ftpmirror.gnu.org/emacs/emacs-29.1.tar.xz"
+  sha256 "d2f881a5cc231e2f5a03e86f4584b0438f83edd7598a09d24a21bd8d003e2e01"
   license "GPL-3.0-or-later"
+  revision 1
 
   head do
     url "https://github.com/emacs-mirror/emacs.git", branch: "master"
   end
 
-  option "with-json", "Build with fast JSON"
   option "with-native-comp", "Build with native compilation"
 
   depends_on "autoconf" => :build
-  depends_on "gcc" => :build
   depends_on "gnu-sed" => :build
   depends_on "pkg-config" => :build
   depends_on "texinfo" => :build
 
   depends_on "gnutls"
   depends_on "jansson"
-  depends_on "jpeg"
+  depends_on "sqlite"
+  depends_on "tree-sitter"
 
   uses_from_macos "libxml2"
   uses_from_macos "ncurses"
 
-  build.with?("json") && depends_on("jansson")
-  build.with?("native-comp") && depends_on("libgccjit")
+  if build.with? "native-comp"
+    depends_on "libgccjit" => :recommended
+    depends_on "gcc" => :build
+  end
+
+  on_linux do
+    depends_on "jpeg-turbo"
+  end
 
   def install
     # Mojave uses the Catalina SDK which causes issues like
@@ -48,19 +54,19 @@ class Emacs < Formula
       --without-ns
       --without-imagemagick
       --without-selinux
+      --with-tree-sitter
+      --with-json
     ]
 
-    gcc_major_ver = Formula["gcc"].any_installed_version.major
-    gcc = Formula["gcc"].opt_bin/"gcc-#{gcc_major_ver}"
-    gcc_libs = "#{HOMEBREW_PREFIX}/lib/gcc/#{gcc_major_ver}"
-
-    ENV["CC"] = gcc
-    ENV.append "CFLAGS", "-I#{Formula["gcc"].include}"
-    ENV.append "LDFLAGS", "-L#{gcc_libs}"
-
-    args << "--with-json" if build.with? "json"
-
     if build.with? "native-comp"
+      gcc_major_ver = Formula["gcc"].any_installed_version.major
+      gcc = Formula["gcc"].opt_bin/"gcc-#{gcc_major_ver}"
+      gcc_libs = "#{HOMEBREW_PREFIX}/lib/gcc/#{gcc_major_ver}"
+
+      ENV["CC"] = gcc
+      ENV.append "CFLAGS", "-I#{Formula["gcc"].include}"
+      ENV.append "LDFLAGS", "-L#{gcc_libs}"
+
       args << "--with-native-compilation"
       ENV.append "CFLAGS", "-I#{Formula["libgccjit"].include}"
     end
