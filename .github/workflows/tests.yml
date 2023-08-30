@@ -34,8 +34,11 @@ jobs:
     steps:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@master
+        with:
+          core: true
+          test-bot: true
 
-      - run: brew test-bot --skip-recursive-dependents Formula/emacs.rb
+      - run: brew test-bot --skip-dependents --build-from-source Formula/emacs.rb
 
   build:
     runs-on: ${{ matrix.os }}
@@ -50,6 +53,8 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@master
 
       - name: Build emacs ${{ matrix.build_opts }}
+        env:
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
         run: brew install Formula/emacs.rb ${{ matrix.build_opts }}
 
       - name: Test installation
