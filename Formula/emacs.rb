@@ -99,5 +99,11 @@ class Emacs < Formula
 
   test do
     assert_equal "4", shell_output("#{bin}/emacs --batch --eval=\"(print (+ 2 2))\"").strip
+    assert_equal "t", shell_output("#{bin}/emacs --batch --eval=\"(print (json-available-p))\"").strip
+    assert_equal "t", shell_output("#{bin}/emacs --batch --eval=\"(print (sqlite-available-p))\"").strip
+
+    if build.with? "native-comp"
+      assert_equal "t", shell_output("#{bin}/emacs --batch --eval=\"(print (native-comp-available-p))\"").strip
+    end
   end
 end
