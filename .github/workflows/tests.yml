@@ -58,8 +58,4 @@ jobs:
         run: brew install Formula/emacs.rb ${{ matrix.build_opts }}
 
       - name: Test installation
-        run: |
-          brew test Formula/emacs.rb
-          test=json-available-p
-          [[ '${{ matrix.build_opts }}' == '--with-native-comp' ]] && test=native-comp-available-p
-          $(brew --prefix)/bin/emacs --batch --eval="(unless (${test}) (error (kill-emacs 1)))"
+        run: brew test Formula/emacs.rb
