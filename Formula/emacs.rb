@@ -27,8 +27,8 @@ class Emacs < Formula
   uses_from_macos "ncurses"
 
   if build.with? "native-comp"
-    depends_on "libgccjit" => :build
-    depends_on "gcc" => :build
+    depends_on "libgccjit"
+    depends_on "gcc"
   end
 
   on_linux do
