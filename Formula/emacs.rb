@@ -1,15 +1,10 @@
 class Emacs < Formula
   desc "GNU Emacs text editor"
   homepage "https://www.gnu.org/software/emacs/"
-  url "https://ftp.gnu.org/gnu/emacs/emacs-29.1.tar.xz"
-  mirror "https://ftpmirror.gnu.org/emacs/emacs-29.1.tar.xz"
-  sha256 "d2f881a5cc231e2f5a03e86f4584b0438f83edd7598a09d24a21bd8d003e2e01"
+  url "https://ftp.gnu.org/gnu/emacs/emacs-29.2.tar.xz"
+  mirror "https://ftpmirror.gnu.org/emacs/emacs-29.2.tar.xz"
+  sha256 "7d3d2448988720bf4bf57ad77a5a08bf22df26160f90507a841ba986be2670dc"
   license "GPL-3.0-or-later"
-  revision 1
-
-  head do
-    url "https://github.com/emacs-mirror/emacs.git", branch: "master"
-  end
 
   option "with-native-comp", "Build with native compilation"
 
@@ -39,7 +34,7 @@ class Emacs < Formula
     # Mojave uses the Catalina SDK which causes issues like
     # https://github.com/Homebrew/homebrew-core/issues/46393
     # https://github.com/Homebrew/homebrew-core/pull/70421
-    ENV["ac_cv_func_aligned_alloc"] = "no" if MacOS.version == :mojave
+    ENV["ac_cv_func_aligned_alloc"] = "no" if OS.mac? && MacOS.version == :mojave
 
     args = %W[
       --disable-silent-rules
