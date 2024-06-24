@@ -1,9 +1,9 @@
 class Emacs < Formula
   desc "GNU Emacs text editor"
   homepage "https://www.gnu.org/software/emacs/"
-  url "https://ftp.gnu.org/gnu/emacs/emacs-29.3.tar.xz"
-  mirror "https://ftpmirror.gnu.org/emacs/emacs-29.3.tar.xz"
-  sha256 "c34c05d3ace666ed9c7f7a0faf070fea3217ff1910d004499bd5453233d742a0"
+  url "https://ftp.gnu.org/gnu/emacs/emacs-29.4.tar.xz"
+  mirror "https://ftpmirror.gnu.org/emacs/emacs-29.4.tar.xz"
+  sha256 "ba897946f94c36600a7e7bb3501d27aa4112d791bfe1445c61ed28550daca235"
   license "GPL-3.0-or-later"
 
   option "with-native-comp", "Build with native compilation"
