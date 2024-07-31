@@ -15,27 +15,19 @@ class Emacs < Formula
 
   depends_on "gnutls"
   depends_on "jansson"
+  depends_on "jpeg-turbo"
+  depends_on "libxml2"
+  depends_on :linux
+  depends_on "ncurses"
   depends_on "sqlite"
   depends_on "tree-sitter"
-
-  uses_from_macos "libxml2"
-  uses_from_macos "ncurses"
 
   if build.with? "native-comp"
     depends_on "libgccjit"
     depends_on "gcc"
   end
 
-  on_linux do
-    depends_on "jpeg-turbo"
-  end
-
   def install
-    # Mojave uses the Catalina SDK which causes issues like
-    # https://github.com/Homebrew/homebrew-core/issues/46393
-    # https://github.com/Homebrew/homebrew-core/pull/70421
-    ENV["ac_cv_func_aligned_alloc"] = "no" if OS.mac? && MacOS.version == :mojave
-
     args = %W[
       --disable-silent-rules
       --enable-locallisppath=#{HOMEBREW_PREFIX}/share/emacs/site-lisp
