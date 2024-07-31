@@ -10,6 +10,8 @@
 
 This is a third party tap for [[https://brew.sh/][Homebrew]]. It provides a formula for =emacs= which includes options for enabling additional features.
 
+*Note: This formula builds only Linux platforms.*
+
 ** Installation and usage
 
 In order to use this tap, you need to install Homebrew.
