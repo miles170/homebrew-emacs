@@ -43,6 +43,19 @@ class Emacs < Formula
       --without-selinux
       --with-tree-sitter
       --with-json
+      --without-cairo
+      --without-harfbuzz
+      --without-libotf
+      --without-m17n-flt
+      --without-toolkit-scroll-bars
+      --without-xaw3d
+      --without-gif
+      --without-tiff
+      --without-png
+      --without-rsvg
+      --without-lcms2
+      --without-xpm
+      --without-gpm
     ]
 
     if build.with? "native-comp"
