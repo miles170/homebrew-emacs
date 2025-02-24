@@ -1,9 +1,9 @@
 class Emacs < Formula
   desc "GNU Emacs text editor"
   homepage "https://www.gnu.org/software/emacs/"
-  url "https://ftp.gnu.org/gnu/emacs/emacs-29.4.tar.xz"
-  mirror "https://ftpmirror.gnu.org/emacs/emacs-29.4.tar.xz"
-  sha256 "ba897946f94c36600a7e7bb3501d27aa4112d791bfe1445c61ed28550daca235"
+  url "https://ftp.gnu.org/gnu/emacs/emacs-30.1.tar.xz"
+  mirror "https://ftpmirror.gnu.org/emacs/emacs-30.1.tar.xz"
+  sha256 "6ccac1ae76e6af93c6de1df175e8eb406767c23da3dd2a16aa67e3124a6f138f"
   license "GPL-3.0-or-later"
 
   option "with-native-comp", "Build with native compilation"
@@ -14,7 +14,6 @@ class Emacs < Formula
   depends_on "texinfo" => :build
 
   depends_on "gnutls"
-  depends_on "jansson"
   depends_on "jpeg-turbo"
   depends_on "libxml2"
   depends_on :linux
@@ -42,7 +41,6 @@ class Emacs < Formula
       --without-imagemagick
       --without-selinux
       --with-tree-sitter
-      --with-json
       --without-cairo
       --without-harfbuzz
       --without-libotf
@@ -67,7 +65,6 @@ class Emacs < Formula
       ENV.append "CFLAGS", "-I#{Formula["gcc"].include}"
       ENV.append "LDFLAGS", "-L#{gcc_libs}"
 
-      args << "--with-native-compilation"
       ENV.append "CFLAGS", "-I#{Formula["libgccjit"].include}"
     end
 
