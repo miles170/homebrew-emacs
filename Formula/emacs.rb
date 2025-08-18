@@ -10,7 +10,7 @@ class Emacs < Formula
 
   depends_on "autoconf" => :build
   depends_on "gnu-sed" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconf" => :build
   depends_on "texinfo" => :build
 
   depends_on "gnutls"
@@ -29,6 +29,7 @@ class Emacs < Formula
   def install
     args = %W[
       --disable-acl
+      --disable-dependency-tracking
       --disable-silent-rules
       --enable-locallisppath=#{HOMEBREW_PREFIX}/share/emacs/site-lisp
       --infodir=#{info}/emacs
@@ -58,6 +59,8 @@ class Emacs < Formula
     ]
 
     if build.with? "native-comp"
+      args << "--with-native-compilation=aot"
+
       gcc_major_ver = Formula["gcc"].any_installed_version.major
       gcc = Formula["gcc"].opt_bin/"gcc-#{gcc_major_ver}"
       gcc_libs = "#{HOMEBREW_PREFIX}/lib/gcc/#{gcc_major_ver}"
@@ -69,17 +72,7 @@ class Emacs < Formula
       ENV.append "CFLAGS", "-I#{Formula["libgccjit"].include}"
     end
 
-    ENV.prepend_path "PATH", Formula["gnu-sed"].opt_libexec/"gnubin"
     system "./autogen.sh"
-
-    File.write "lisp/site-load.el", <<~EOS
-      (setq exec-path (delete nil
-        (mapcar
-          (lambda (elt)
-            (unless (string-match-p "Homebrew/shims" elt) elt))
-          exec-path)))
-    EOS
-
     system "./configure", *args
     system "make"
     system "make", "install"
