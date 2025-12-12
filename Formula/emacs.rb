@@ -19,7 +19,8 @@ class Emacs < Formula
   depends_on :linux
   depends_on "ncurses"
   depends_on "sqlite"
-  depends_on "tree-sitter"
+  # TODO: Bump to use tree-sitter 0.26+ when new Emacs release supports it
+  depends_on "tree-sitter@0.25"
 
   if build.with? "native-comp"
     depends_on "libgccjit"
