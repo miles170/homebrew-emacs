@@ -17,7 +17,7 @@ jobs:
       - name: Trust formula
         run: brew trust --formula miles170/emacs/emacs
 
-      - uses: dawidd6/action-homebrew-bump-formula@v7
+      - uses: dawidd6/action-homebrew-bump-formula@v8
         with:
           token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
           tap: miles170/homebrew-emacs
