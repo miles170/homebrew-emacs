@@ -11,12 +11,6 @@ jobs:
     name: Bump Homebrew formula
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@main
-
-      - name: Trust formula
-        run: brew trust --formula miles170/emacs/emacs
-
       - uses: dawidd6/action-homebrew-bump-formula@v8
         with:
           token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
