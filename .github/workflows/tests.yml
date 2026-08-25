@@ -12,46 +12,45 @@ on:
       - "Formula/emacs.rb"
       - ".github/workflows/tests.yml"
 
-env:
-  HOMEBREW_DEVELOPER: 1
-  HOMEBREW_GITHUB_ACTIONS: 1
-  HOMEBREW_NO_AUTO_UPDATE: 1
+permissions: {}
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
 
 concurrency:
   group: "tests-${{ github.ref }}"
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+  test-bot:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/homebrew/brew:main
+      options: --privileged
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      pull-requests: read
     steps:
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@8f3d1ec8a696b3b9d9a6c3696b6c73033cab69e4 # 2026.08.14.1
         with:
-          core: true
-          test-bot: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: brew test-bot --skip-dependents --build-from-source Formula/emacs.rb
+      - name: Cache Homebrew Bundler RubyGems
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: ubuntu-latest-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: ubuntu-latest-rubygems-
 
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        build_opts:
-          - ""
-          - "--with-native-comp"
-    steps:
-      - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+      - run: brew test-bot --only-cleanup-before
 
-      - name: Build emacs ${{ matrix.build_opts }}
-        env:
-          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
-        run: brew install Formula/emacs.rb ${{ matrix.build_opts }}
+      - run: brew test-bot --only-setup
 
-      - name: Test installation
-        run: brew test Formula/emacs.rb
+      - run: brew test-bot --only-tap-syntax
+
+      - run: brew test-bot --only-formulae --skip-dependents

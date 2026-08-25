@@ -1,87 +1,63 @@
 class Emacs < Formula
   desc "GNU Emacs text editor"
   homepage "https://www.gnu.org/software/emacs/"
-  url "https://ftpmirror.gnu.org/gnu/emacs/emacs-30.2.tar.xz"
-  mirror "https://ftp.gnu.org/gnu/emacs/emacs-30.2.tar.xz"
-  sha256 "b3f36f18a6dd2715713370166257de2fae01f9d38cfe878ced9b1e6ded5befd9"
+  url "https://ftpmirror.gnu.org/gnu/emacs/emacs-31.1.tar.xz"
+  mirror "https://ftp.gnu.org/gnu/emacs/emacs-31.1.tar.xz"
+  sha256 "1da5790d9580c81932b5bf700633114468da7b3412d69faa767daebf974f4586"
   license "GPL-3.0-or-later"
 
-  option "with-native-comp", "Build with native compilation"
-
-  depends_on "autoconf" => :build
-  depends_on "gnu-sed" => :build
   depends_on "pkgconf" => :build
   depends_on "texinfo" => :build
 
+  depends_on "gcc"
+  depends_on "gmp"
   depends_on "gnutls"
-  depends_on "jpeg-turbo"
+  depends_on "libgccjit"
   depends_on "libxml2"
   depends_on :linux
   depends_on "ncurses"
   depends_on "sqlite"
-  # TODO: Bump to use tree-sitter 0.26+ when new Emacs release supports it
-  depends_on "tree-sitter@0.25"
-
-  if build.with? "native-comp"
-    depends_on "libgccjit"
-    depends_on "gcc"
-  end
+  depends_on "tree-sitter"
+  depends_on "zlib-ng-compat"
 
   def install
     args = %W[
-      --disable-acl
-      --disable-dependency-tracking
       --disable-silent-rules
+      --disable-xattr
       --enable-locallisppath=#{HOMEBREW_PREFIX}/share/emacs/site-lisp
       --infodir=#{info}/emacs
       --prefix=#{prefix}
-      --with-gnutls
+      --without-all
       --without-x
-      --with-xml2
-      --without-dbus
+      --with-file-notification=inotify
+      --with-gnutls
       --with-modules
-      --without-ns
-      --without-imagemagick
-      --without-selinux
+      --with-native-compilation=aot
+      --with-sqlite3
+      --with-systemduserunitdir=no
+      --with-threads
       --with-tree-sitter
-      --without-cairo
-      --without-harfbuzz
-      --without-libotf
-      --without-m17n-flt
-      --without-toolkit-scroll-bars
-      --without-xaw3d
-      --without-gif
-      --without-tiff
-      --without-png
-      --without-rsvg
-      --without-lcms2
-      --without-xpm
-      --without-gpm
+      --with-xml2
+      --with-zlib
     ]
 
-    if build.with? "native-comp"
-      args << "--with-native-compilation=aot"
+    gcc_major = Formula["gcc"].version.major
+    ENV["CC"] = formula_opt_bin("gcc")/"gcc-#{gcc_major}"
+    ENV.append "CPPFLAGS", "-I#{formula_opt_include("libgccjit")}"
+    ENV.append "LDFLAGS", "-L#{formula_opt_lib("gcc")/"gcc/current"}"
+    ENV.append "LDFLAGS", "-L#{formula_opt_lib("libgccjit")/"gcc/current"}"
 
-      gcc_major_ver = Formula["gcc"].any_installed_version.major
-      gcc = Formula["gcc"].opt_bin/"gcc-#{gcc_major_ver}"
-      gcc_libs = "#{HOMEBREW_PREFIX}/lib/gcc/#{gcc_major_ver}"
+    File.write "lisp/site-load.el", <<~LISP
+      (setq exec-path (delete nil
+        (mapcar
+          (lambda (path)
+            (unless (string-match-p "Homebrew/shims" path) path))
+          exec-path)))
+    LISP
 
-      ENV["CC"] = gcc
-      ENV.append "CFLAGS", "-I#{Formula["gcc"].include}"
-      ENV.append "LDFLAGS", "-L#{gcc_libs}"
-
-      ENV.append "CFLAGS", "-I#{Formula["libgccjit"].include}"
-    end
-
-    system "./autogen.sh"
     system "./configure", *args
     system "make"
     system "make", "install"
-
-    # Follow MacPorts and don't install ctags from Emacs. This allows Vim
-    # and Emacs and ctags to play together without violence.
-    (bin/"ctags").unlink
-    (man1/"ctags.1.gz").unlink
   end
 
   service do
@@ -90,12 +66,24 @@ class Emacs < Formula
   end
 
   test do
-    assert_equal "4", shell_output("#{bin}/emacs --batch --eval=\"(print (+ 2 2))\"").strip
-    assert_equal "t", shell_output("#{bin}/emacs --batch --eval=\"(print (json-available-p))\"").strip
-    assert_equal "t", shell_output("#{bin}/emacs --batch --eval=\"(print (sqlite-available-p))\"").strip
+    emacs = "#{bin}/emacs --quick --batch"
+    assert_equal "4", shell_output("#{emacs} --eval=\"(print (+ 2 2))\"").strip
 
-    if build.with? "native-comp"
-      assert_equal "t", shell_output("#{bin}/emacs --batch --eval=\"(print (native-comp-available-p))\"").strip
+    %w[
+      gnutls-available-p
+      libxml-available-p
+      sqlite-available-p
+      treesit-available-p
+      zlib-available-p
+    ].each do |feature|
+      assert_equal "t", shell_output("#{emacs} --eval=\"(print (and (#{feature}) t))\"").strip
     end
+
+    configuration = shell_output("#{emacs} --eval=\"(princ system-configuration-features)\"")
+    %w[INOTIFY MODULES NOTIFY THREADS].each do |feature|
+      assert_match feature, configuration
+    end
+
+    assert_equal "t", shell_output("#{emacs} --eval=\"(print (native-comp-available-p))\"").strip
   end
 end
