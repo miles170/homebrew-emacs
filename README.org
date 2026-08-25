@@ -8,7 +8,7 @@
 </p>
 #+end_html
 
-This is a third party tap for [[https://brew.sh/][Homebrew]]. It provides a formula for =emacs= which includes options for enabling additional features.
+This is a third party tap for [[https://brew.sh/][Homebrew]]. It provides a terminal-only Emacs build with native compilation.
 
 *Note: This formula builds only for Linux CLI environments.*
 
@@ -20,14 +20,8 @@ Then, to run a default installation, run:
 
 #+begin_src bash
 brew tap miles170/emacs
-brew install miles170/emacs/emacs --with-native-comp
+brew install miles170/emacs/emacs
 #+end_src
-
-*** Options
-
-| Option               | Description                   |
-|----------------------|-------------------------------|
-| =--with-native-comp= | build with native compilation |
 
 ** Issues
 
