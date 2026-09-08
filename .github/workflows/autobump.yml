@@ -10,10 +10,35 @@ jobs:
   homebrew:
     name: Bump Homebrew formula
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: dawidd6/action-homebrew-bump-formula@v8
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@3cdb78d0f62ad29dd32de765782654f4eedea607 # 2026.08.31.1
+
+      - name: Check for a new Emacs release
+        id: livecheck
+        shell: bash
+        run: |
+          result="$(brew livecheck --formula --json miles170/emacs/emacs)"
+          latest="$(jq -r '.[0].version.latest // empty' <<<"${result}")"
+          outdated="$(jq -r '.[0].version.outdated // false' <<<"${result}")"
+
+          test -n "${latest}"
+          echo "latest=${latest}" >> "${GITHUB_OUTPUT}"
+          echo "outdated=${outdated}" >> "${GITHUB_OUTPUT}"
+
+      - name: Bump Homebrew formula
+        if: steps.livecheck.outputs.outdated == 'true'
+        uses: mislav/bump-homebrew-formula-action@f865c8b0dbebd6e263cc06782a0e974c61cf12d2 # v4.2
         with:
-          token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
-          tap: miles170/homebrew-emacs
-          formula: emacs
-          livecheck: true
+          formula-name: emacs
+          formula-path: Formula/emacs.rb
+          tag-name: ${{ steps.livecheck.outputs.latest }}
+          download-url: https://ftpmirror.gnu.org/gnu/emacs/emacs-${{ steps.livecheck.outputs.latest }}.tar.xz
+          homebrew-tap: miles170/homebrew-emacs
+          base-branch: main
+          create-branch: true
+          create-pullrequest: true
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
