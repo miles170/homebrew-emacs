@@ -49,8 +49,10 @@ class Emacs < Formula
     gcc_major = Formula["gcc"].version.major
     ENV["CC"] = formula_opt_bin("gcc")/"gcc-#{gcc_major}"
     ENV.append "CPPFLAGS", "-I#{formula_opt_include("libgccjit")}"
-    ENV.append "LDFLAGS", "-L#{formula_opt_lib("gcc")/"gcc/current"}"
-    ENV.append "LDFLAGS", "-L#{formula_opt_lib("libgccjit")/"gcc/current"}"
+    gcc_lib = formula_opt_lib("gcc")/"gcc/current"
+    libgccjit_lib = formula_opt_lib("libgccjit")/"gcc/current"
+    ENV.append "LDFLAGS", "-L#{gcc_lib}"
+    ENV.append "LDFLAGS", "-L#{libgccjit_lib}"
 
     File.write "lisp/site-load.el", <<~LISP
       (setq exec-path (delete nil
